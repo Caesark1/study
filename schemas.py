@@ -1,0 +1,28 @@
+from typing import Optional
+
+from pydantic import BaseModel
+
+
+class Hotel(BaseModel):
+    id: int
+    title: str
+    rooms: int
+
+
+class HotelsQuery(BaseModel):
+    title: Optional[str] = None
+    page: Optional[int] = 1
+    page_size: Optional[int] = 5
+
+
+hotels = [
+    Hotel(id=1, title="Hotel 1", rooms=3),
+    Hotel(id=2, title="Hotel 2", rooms=4),
+    Hotel(id=3, title="Hotel 3", rooms=5),
+    Hotel(id=4, title="Hotel 4", rooms=6),
+    Hotel(id=5, title="Hotel 5", rooms=7),
+    Hotel(id=6, title="Hotel 6", rooms=8),
+    Hotel(id=7, title="Hotel 7", rooms=9),
+    Hotel(id=8, title="Hotel 8", rooms=10),
+    Hotel(id=9, title="Hotel 9", rooms=11),
+]

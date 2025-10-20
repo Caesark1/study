@@ -4,9 +4,9 @@ import time
 from typing import Any, Annotated
 
 from fastapi.encoders import jsonable_encoder
-from fastapi import Query, APIRouter
+from fastapi import APIRouter, Depends
 
-from schemas import hotels, Hotel, HotelsQuery
+from src.schemas.schemas import hotels, Hotel, HotelsQuery
 
 hotel_routers = APIRouter(prefix="/api/hotels", tags=["Hotels"])
 
@@ -31,7 +31,7 @@ async def async_get(id: int) -> dict[str, Any]:
 
 @hotel_routers.get("/")
 def get_hotels(
-        queries: Annotated[HotelsQuery, Query()] = None,
+        queries: Annotated[HotelsQuery, Depends()] = None,
 ) -> list[Hotel]:
     data = hotels
     if queries.title:

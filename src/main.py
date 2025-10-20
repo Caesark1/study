@@ -1,6 +1,13 @@
+import sys
+
+from pathlib import Path
+
 from fastapi import FastAPI
 
-from hotels import hotel_routers
+sys.path.append(str(Path(__file__).parent.parent))
+
+from src.api.hotels import hotel_routers
+from src.database import *
 
 app = FastAPI()
 

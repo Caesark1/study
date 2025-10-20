@@ -1,5 +1,6 @@
-from typing import Optional
+from typing import Optional, Annotated
 
+from fastapi import Query
 from pydantic import BaseModel
 
 
@@ -11,8 +12,8 @@ class Hotel(BaseModel):
 
 class HotelsQuery(BaseModel):
     title: Optional[str] = None
-    page: Optional[int] = 1
-    page_size: Optional[int] = 5
+    page: Annotated[Optional[int], Query(default=1, gt=0)]
+    page_size: Annotated[Optional[int], Query(default=5, gt=0, le=30)]
 
 
 hotels = [

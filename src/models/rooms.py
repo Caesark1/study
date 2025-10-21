@@ -7,7 +7,7 @@ from sqlalchemy.orm import mapped_column, Mapped
 from database import Base
 
 
-class Rooms(Base):
+class RoomsTable(Base):
     __tablename__ = "rooms"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)

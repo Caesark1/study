@@ -7,11 +7,21 @@ from pydantic import BaseModel
 class Hotel(BaseModel):
     id: int
     title: str
-    rooms: int
+    rooms: Optional[int] = None
+    location: Optional[str] = None
+    created_at: Optional[str] = None
+
+
+class HotelCreate(BaseModel):
+    title: str
+    rooms: Optional[int] = None
+    location: Optional[str] = None
 
 
 class HotelsQuery(BaseModel):
     title: Optional[str] = None
+    location: Optional[str] = None
+    rooms: Optional[int] = None
     page: Annotated[Optional[int], Query(default=1, gt=0)]
     page_size: Annotated[Optional[int], Query(default=5, gt=0, le=30)]
 

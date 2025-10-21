@@ -1,5 +1,5 @@
-from models.hotels import Hotels
-from models.rooms import Rooms
+from models.hotels import HotelsTable
+from models.rooms import RoomsTable
 
 
-__all__ = ["Hotels", "Rooms"]
+__all__ = ["HotelsTable", "RoomsTable"]

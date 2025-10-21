@@ -4,9 +4,12 @@ import time
 from typing import Any, Annotated
 
 from fastapi.encoders import jsonable_encoder
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Body
+from sqlalchemy import insert, select
 
-from src.schemas.schemas import hotels, Hotel, HotelsQuery
+from database import async_session_maker
+from models.hotels import HotelsTable
+from src.schemas.schemas import hotels, Hotel, HotelsQuery, HotelCreate
 
 hotel_routers = APIRouter(prefix="/api/hotels", tags=["Hotels"])
 
@@ -30,18 +33,33 @@ async def async_get(id: int) -> dict[str, Any]:
 
 
 @hotel_routers.get("/")
-def get_hotels(
+async def get_hotels(
         queries: Annotated[HotelsQuery, Depends()] = None,
 ) -> list[Hotel]:
-    data = hotels
-    if queries.title:
-        data = [
-            hotel for hotel in hotels if queries.title.lower() in hotel.title.lower()
-        ]
+    async with async_session_maker() as session:
+        query = select(HotelsTable)
+        if queries.title:
+            query = query.filter(HotelsTable.title.ilike(f"%{queries.title}%"))
+        if queries.location:
+            query = query.filter(HotelsTable.location.ilike(f"%{queries.location}%"))
+        if queries.rooms:
+            query = query.filter(HotelsTable.rooms >= queries.rooms)
+        query = (
+            query
+            .limit(queries.page_size)
+            .offset((queries.page - 1) * queries.page_size)
+        )
+        result = await session.execute(query)
 
-    start = (queries.page - 1) * queries.page_size
-    end = start + queries.page_size
-    return data[start:end]
+    # data = hotels
+    # if queries.title:
+    #     data = [
+    #         hotel for hotel in hotels if queries.title.lower() in hotel.title.lower()
+    #     ]
+    #
+    # start = (queries.page - 1) * queries.page_size
+    # end = start + queries.page_size
+    return result.scalars().all()
 
 
 @hotel_routers.get("/{hotel_id}")
@@ -53,9 +71,36 @@ def get_hotel(hotel_id: int) -> Hotel | dict[str, Any]:
 
 
 @hotel_routers.post("/")
-def create_hotel(hotel: Hotel) -> Hotel:
-    hotels.append(hotel)
-    return hotel
+async def create_hotel(
+        hotel: HotelCreate = Body(
+            openapi_examples={
+                "1": {
+                    "summary": "Тест со всеми данными",
+                    "value": {
+                        "title": "Test Hotel",
+                        "rooms": 3,
+                        "location": "Test Location",
+                    },
+                },
+                "2": {
+                    "summary": "Тест только с именем",
+                    "value": {
+                        "title": "Test Hotel",
+                    }
+                }
+            }
+        )
+) -> dict:
+    async with async_session_maker() as session:
+        add_hotel_stmt = insert(HotelsTable).values(
+            **hotel.model_dump()
+        )
+        await session.execute(add_hotel_stmt)
+        await session.commit()
+        # session.add(hotel)
+        # await session.commit()
+        # await session.refresh(hotel)
+    return {"hotel": "TEST"}
 
 
 @hotel_routers.delete("/{hotel_id}")

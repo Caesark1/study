@@ -11,9 +11,18 @@ class Hotel(BaseModel):
     location: Optional[str] = None
     created_at: Optional[str] = None
 
+    class Config:
+        from_attributes = True
+
 
 class HotelCreate(BaseModel):
     title: str
+    rooms: Optional[int] = None
+    location: Optional[str] = None
+
+
+class HotelUpdate(BaseModel):
+    title: Optional[str] = None
     rooms: Optional[int] = None
     location: Optional[str] = None
 
